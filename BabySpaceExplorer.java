@@ -7,25 +7,30 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JMenuItem;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class BabySpaceExplorer extends JFrame{
-	JMenu menu;
+	JMenu gameMenu;
+	JMenu optionsMenu;
+	JMenu customiseMenu;
 	JPanel topPanel;
 	JPanel leftPanel;
 	JPanel rightPanel;
@@ -33,8 +38,12 @@ public class BabySpaceExplorer extends JFrame{
 	JPanel botPanel;
 	middlePanel midPanel;
 
-	JRadioButtonMenuItem rbMenuRandom;
-	JRadioButtonMenuItem rbMenuRegular;
+	JMenuItem loadGameFileButton;
+	JMenuItem saveGameFileButton;
+	JMenuItem newGameButton;
+	JMenuItem soundButton;
+	JCheckBox sandboxButton;
+	JMenuItem helpButton;
 	JSlider speedSlider;
 	JLabel coordsLabel;
 	JLabel sliderLabel;
@@ -42,45 +51,91 @@ public class BabySpaceExplorer extends JFrame{
 	ArrayList<JTextField> yCoordsDisplay;
 	JTextField displaySpeed;
 	JLabel displaySpeedLabel;
-	JButton editableButton;
-	JButton helpButton;
+	//JButton editableButton;
+	//JButton helpButton;
 	
 	
-	boolean editable = false;
-	int N = 3;
+	boolean paramsEditable = false;
+	int engineVelocity = 3;
 	int[] xCoords;
 	int[] yCoords;
-	int R = 190;
 	
 	
 	
 	public BabySpaceExplorer() {
 		super();
+		//loading icon
+		String OSNAME = System.getProperty("os.name");
+		if (OSNAME.toLowerCase().contains("windows")){
+			URL iconURL = getClass().getResource("BSE_icon.ico");
+			ImageIcon icon = new ImageIcon(iconURL);
+			this.setIconImage(icon.getImage());
+
+		}
+		else {
+			URL iconURL = getClass().getResource("BSE_icon.png");
+			ImageIcon icon = new ImageIcon(iconURL);
+			this.setIconImage(icon.getImage());
+		}
+
+		//setting up the main JFrame
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.setSize(1200,800);
 		this.setTitle("BabySpaceExplorer");
 		this.getContentPane().setBackground(Color.BLACK);
 
 		
-		
+		//creating the menu bar
 		final JMenuBar menuBar = new JMenuBar();
-		menu = new JMenu("GAME");
-		//menu.setMnemonic(KeyEvent.VK_A);
-		
-		ButtonGroup group = new ButtonGroup();
-		rbMenuRegular = new JRadioButtonMenuItem("Restart (new game)", true);
-		rbMenuRegular.setSelected(true);
-		//rbMenuRegular.setMnemonic(KeyEvent.VK_O);
-		group.add(rbMenuRegular);
-		menu.add(rbMenuRegular);
-		
-		rbMenuRandom = new JRadioButtonMenuItem("Load from file");
-		rbMenuRandom.setSelected(true);
-		//rbMenuRandom.setMnemonic(KeyEvent.VK_R);
-		group.add(rbMenuRandom);
-		menu.add(rbMenuRandom);
 
-		menuBar.add(menu);
+		//GAME menu
+		gameMenu = new JMenu("GAME");
+		
+		ButtonGroup gameGroup = new ButtonGroup();
+
+		newGameButton = new JMenuItem("Restart (new game)");
+		//newGameButton.setSelected(true);
+		gameGroup.add(newGameButton);
+		gameMenu.add(newGameButton);
+		
+		loadGameFileButton = new JMenuItem("Load game (from .csv file)");
+		//loadGameFileButton.setSelected(true);
+		gameGroup.add(loadGameFileButton);
+		gameMenu.add(loadGameFileButton);
+		
+		saveGameFileButton = new JMenuItem("Save game (to .csv file)");
+		//loadGameFileButton.setSelected(true);
+		gameGroup.add(saveGameFileButton);
+		gameMenu.add(saveGameFileButton);
+
+		menuBar.add(gameMenu);
+
+		
+		optionsMenu = new JMenu("OPTIONS");
+		
+		ButtonGroup optionsGroup = new ButtonGroup();
+
+		soundButton = new JMenuItem("Sound...");
+		//newGameButton.setSelected(true);
+		optionsGroup.add(soundButton);
+		optionsMenu.add(soundButton);
+
+		
+		sandboxButton = new JCheckBox("Sandbox Mode");
+		optionsGroup.add(sandboxButton);
+		optionsMenu.add(sandboxButton);
+
+		
+		helpButton = new JMenuItem("Help");
+		optionsGroup.add(helpButton);
+		optionsMenu.add(helpButton);
+		
+		
+
+		menuBar.add(optionsMenu);
+
+		customiseMenu = new JMenu("CUSTOMISE");
+
 		this.setJMenuBar(menuBar);
 		
 
@@ -187,29 +242,28 @@ public class BabySpaceExplorer extends JFrame{
 		
 		botPanel = new JPanel();
 
-		editableButton = new JButton("Sandbox Mode");
-		
-		editableButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-				if(editable){
-					editable = false;
-            	}
-				else{
-					editable = true;
-				}
-				healthField.setEditable(editable);
-				capacityField.setEditable(editable);
-				loadField.setEditable(editable);
-				velocityField.setEditable(editable);
-			}});
-		
-		botPanel.add(editableButton);
-
-		helpButton = new JButton("Help");
-		botPanel.add(helpButton);
 
         botPanel.setLayout(new BoxLayout(botPanel, BoxLayout.X_AXIS));
+
+
+		//"GLOBAL" LISTENERS
+		
+		sandboxButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+				if(paramsEditable){
+					paramsEditable = false;
+            	}
+				else{
+					paramsEditable = true;
+				}
+				healthField.setEditable(paramsEditable);
+				capacityField.setEditable(paramsEditable);
+				loadField.setEditable(paramsEditable);
+				velocityField.setEditable(paramsEditable);
+				sandboxButton.setSelected(paramsEditable);
+			}});
+
 
 		this.add(topPanel, BorderLayout.NORTH);
 		this.add(midPanel, BorderLayout.CENTER);
@@ -224,7 +278,7 @@ public class BabySpaceExplorer extends JFrame{
 	@Override
 		public void stateChanged(ChangeEvent arg0) {
 			int value = speedSlider.getValue();
-			N = value;
+			engineVelocity = value;
 			displaySpeed.setText(Integer.toString(value));
 		}
 	}
